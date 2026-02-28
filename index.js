@@ -8,7 +8,6 @@ var idInput = document.getElementById("studentId");
 var emailInput = document.getElementById("email");
 var contactInput = document.getElementById("contact");
 var tableContainer = document.getElementsByClassName("table-container")[0];
-
 // ===========================
 // 2. DATA VARIABLES
 // ===========================
@@ -27,28 +26,44 @@ showStudents(); // show existing records
 // ===========================
 // 4. ADD / UPDATE STUDENT
 // ===========================
-form.addEventListener("submit", function (event) {
-    event.preventDefault(); // stop page reload
 
-    // 🔹 Use semantic HTML5 validation
+form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
     if (!form.checkValidity()) {
-        // This shows error messages next to the invalid input
         form.reportValidity();
-        return; // stop if form is invalid
+        return;
     }
 
-    // If we reach here, all fields are:
-    // - not empty (required)
-    // - match pattern rules
-    // - valid email
-
-    // Get values
     var name = nameInput.value.trim();
     var id = idInput.value.trim();
     var email = emailInput.value.trim();
     var contact = contactInput.value.trim();
 
-    // Create student object
+    // 🔹 Check duplicate ID
+    for (var i = 0; i < students.length; i++) {
+        if (students[i].id === id && i !== editIndex) {
+            showError("Student ID already exists!");
+            return;
+        }
+    }
+
+    // 🔹 Check duplicate Email
+    for (var i = 0; i < students.length; i++) {
+        if (students[i].email === email && i !== editIndex) {
+            showError("Email already exists!");
+            return;
+        }
+    }
+
+    // 🔹 Check duplicate Contact
+    for (var i = 0; i < students.length; i++) {
+        if (students[i].contact === contact && i !== editIndex) {
+            showError("Contact number already exists!");
+            return;
+        }
+    }
+
     var student = {
         name: name,
         id: id,
@@ -56,23 +71,18 @@ form.addEventListener("submit", function (event) {
         contact: contact
     };
 
-    // Add or update
     if (editIndex === -1) {
-        // add new record
         students.push(student);
     } else {
-        // update existing record
         students[editIndex] = student;
         editIndex = -1;
     }
 
-    // Save and refresh
     saveStudents();
     showStudents();
-
-    // Clear form
     form.reset();
 });
+
 
 // ===========================
 // 5. SAVE TO LOCAL STORAGE
@@ -122,11 +132,15 @@ function editStudent(index) {
 // ===========================
 // 8. DELETE STUDENT
 // ===========================
+
 // ================= Modal Variables =================
 var deleteModal = document.getElementById("deleteModal");
 var confirmDeleteBtn = document.getElementById("confirmDelete");
 var cancelDeleteBtn = document.getElementById("cancelDelete");
-
+// ================= ERROR MODAL VARIABLES =================
+var errorModal = document.getElementById("errorModal");
+var errorMessage = document.getElementById("errorMessage");
+var closeErrorBtn = document.getElementById("closeError");
 var deleteIndex = -1; // store which record to delete
 
 // ================= SHOW CUSTOM POPUP =================
@@ -137,9 +151,16 @@ function deleteStudent(index) {
 
 // ================= CONFIRM DELETE =================
 confirmDeleteBtn.addEventListener("click", function () {
+
     students.splice(deleteIndex, 1);
+
+    // Clear form if we were editing
+    form.reset();
+    editIndex = -1;
+
     saveStudents();
     showStudents();
+
     deleteModal.style.display = "none";
 });
 
@@ -148,6 +169,14 @@ cancelDeleteBtn.addEventListener("click", function () {
     deleteModal.style.display = "none";
 });
 
+// ================= SHOW ERROR FUNCTION =================
+function showError(message) {
+    errorMessage.textContent = message;
+    errorModal.style.display = "flex";
+}
+closeErrorBtn.addEventListener("click", function () {
+    errorModal.style.display = "none";
+});
 
 // ===========================
 // 9. DYNAMIC VERTICAL SCROLLBAR
