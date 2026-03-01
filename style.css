@@ -54,6 +54,12 @@ button {
     font-weight: bold;
 }
 
+button:hover {
+    opacity: 0.9;
+    transform: scale(1.03);
+    transition: 0.2s ease;
+}
+
 .add-btn {
     background: #4e73df;
     color: white;
